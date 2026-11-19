@@ -25,7 +25,8 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
     ├── ai-interaction.md           [exists]  Working agreement: workflow, branching, commits, review checklist.
     ├── current-feature.md          [exists]  Tracker for the feature in progress.
     ├── feature-history.md          [exists]  Archive of completed features.
-    └── specs/                      [exists]  Empty. Feature specs (for example for `/feature load`) go here.
+    └── specs/                      [exists]  Feature specs (for example for `/feature load`) go here.
+        └── spec-roadmap.md         [exists]  Sprint-by-sprint implementation roadmap with requirement traceability.
 ```
 
 ## Target structure
