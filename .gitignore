@@ -1,0 +1,17 @@
+# ESP-IDF build output and generated config (sdkconfig can hold Wi-Fi credentials)
+build/
+managed_components/
+sdkconfig
+sdkconfig.old
+
+# Host unit-test binaries
+build-host/
+
+# Optional graphify tooling
+.venv/
+graphify-out/
+
+# Python caches and local editor/agent settings
+__pycache__/
+*.pyc
+.claude/settings.local.json

@@ -1,0 +1,4 @@
+# Dev tooling only (graphify knowledge graph). Not used by the firmware or the host tests.
+# PyPI name is "graphifyy" (two y's); "graphify" does not exist on PyPI.
+# 0.9.110 is the newest release that supports Python 3.10 (0.9.111+ need 3.11).
+graphifyy==0.9.110

@@ -1,0 +1,66 @@
+{
+  "python-env-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts\\guard-python-env.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+
+  "unsafe-code-sentry": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts\\guard-unsafe-code.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+
+  "feature-reminder": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python scripts\\feature-reminder.py",
+        "timeout": 5
+      }
+    ]
+  },
+
+  "graphify-staleness": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python scripts\\graphify-staleness.py",
+        "timeout": 10
+      }
+    ]
+  },
+
+  "commit-message-lint": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts\\commit-message-lint.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
