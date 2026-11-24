@@ -12,7 +12,7 @@ A multi-task weather station that samples temperature and humidity, filters the 
 
 **Build and test workflow:** Docker-based, split into two tiers (details in [Build and Test with Docker](#build-and-test-with-docker)).
 - **Tier 1, host build and unit tests (lightweight):** a small Alpine + GCC container (~230 MB) compiles the hardware-independent C logic (moving average, validation, dew point) and runs its unit tests on the development machine. It needs no ESP32 and no ESP-IDF, and runs comfortably within 256 MB of RAM and one CPU.
-- **Tier 2, firmware build (heavy, on demand):** the ESP32 cross-compile uses the official `espressif/idf` image, or a native ESP-IDF install. It is several GB and is only needed to produce `weather_station.bin`.
+- **Tier 2, firmware build (heavy, on demand):** the ESP32 cross-compile uses the official `espressif/idf:v5.5.6` image (no native ESP-IDF install). It is about 9 GB on disk and is only needed to produce `weather_station.bin`.
 - **On hardware only:** flashing, I2C/OLED, Wi-Fi/MQTT, timing jitter, stack high-water marks, fault injection and the 24-hour soak test. Docker cannot replace the device for these.
 
 ## Objectives
@@ -175,11 +175,11 @@ Only `components/app_logic/` and `test/host/` are compiled in the test container
 |----------|-------|-----|
 | Compile and unit-test `app_logic` (moving average, validation, dew point) | **Test container** (Alpine + GCC, ~230 MB) | Pure C, needs only `gcc`, `make` and `libm`. Fast and reproducible. |
 | Static checks and warnings (`-Wall -Wextra -Werror`, optional `cppcheck`) | **Test container** | Same toolchain on every machine and in CI. |
-| Cross-compile the ESP32 firmware | `espressif/idf:v5.x` container, or a native ESP-IDF install | Needs the Xtensa toolchain and ESP-IDF, which is several GB. Not part of the lightweight workflow. |
+| Cross-compile the ESP32 firmware | `espressif/idf:v5.5.6` container | Needs the Xtensa toolchain and ESP-IDF, which is about 9 GB on disk. Not part of the lightweight workflow. |
 | Flash and monitor | Host machine (`idf.py -p COMx flash monitor`) | USB serial passthrough from Docker on Windows is unreliable. Flash from the host. |
 | Timing jitter, stack high-water marks, I2C/OLED, Wi-Fi/MQTT, fault injection, 24 h soak | Real ESP32 | These depend on real hardware and the real FreeRTOS scheduler. |
 
-The test container was checked with a sample dew-point function and test: the image builds to about 231 MB (an earlier check measured about 282 MB) and the test compiles with `-Wall -Wextra -Werror` and passes under `--memory 256m --cpus 1`. The `espressif/idf` image was not pulled or measured.
+The test container was checked with a sample dew-point function and test: the image builds to about 231 MB (an earlier check measured about 282 MB) and the test compiles with `-Wall -Wextra -Werror` and passes under `--memory 256m --cpus 1`. The `espressif/idf:v5.5.6` image was pulled and measures 9.22 GB on disk (about 5 GB compressed); `idf.py --version` in it prints `ESP-IDF v5.5.6`. A firmware build in it has not been run yet.
 
 ### Test image
 
@@ -213,10 +213,10 @@ Run these from the project root (PowerShell or a Linux/macOS shell). In Git Bash
 ### Optional: firmware build in the official ESP-IDF image
 
 ```
-docker run --rm -v "${PWD}:/project" -w /project espressif/idf:v5.2 idf.py set-target esp32 build
+docker run --rm --memory 2g --cpus 2 -v "${PWD}:/project" -w /project espressif/idf:v5.5.6 idf.py set-target esp32 build
 ```
 
-Pin the exact tag to the ESP-IDF version in use. This produces the `.bin` files in `build/`. Flash them from the host with `idf.py -p COMx flash monitor` (or `esptool.py`). Expect a multi-GB image and a slower first build. Skip it if ESP-IDF is installed natively.
+The project is pinned to `espressif/idf:v5.5.6` (ESP-IDF v5.5.6); never use `latest`. Always run it with `--memory 2g --cpus 2` so a build cannot starve the laptop (the Docker VM is also capped at 3 GB and 2 CPUs in `~/.wslconfig`). This produces the `.bin` files in `build/`. Flash them from the host with `idf.py -p COMx flash monitor` (or `esptool.py`). Expect a multi-GB image and a slower first build. A native ESP-IDF install is not used in this project.
 
 ### Limits of this approach
 
@@ -227,7 +227,7 @@ Pin the exact tag to the ESP-IDF version in use. This produces the `.bin` files 
 ## Setup Instructions
 
 1. **Install Docker** (Docker Desktop or Docker Engine) and build the test image: `docker build -f Dockerfile.test -t rtos-host-test .`
-2. **Install the firmware toolchain:** ESP-IDF v5.x (CMake build, `idf.py`) following the Espressif Getting Started guide, plus VS Code with the Espressif IDF extension (optional). Alternative: use the `espressif/idf` container for builds and keep only `esptool.py`/`idf.py` on the host for flashing.
+2. **Get the firmware toolchain:** pull the pinned container, `docker pull espressif/idf:v5.5.6` (about 5 GB download, 9.22 GB on disk), and check it with `docker run --rm --memory 2g --cpus 2 espressif/idf:v5.5.6 idf.py --version`. Builds run in the container. A native ESP-IDF install is not used. Flashing, if a board is ever bought, needs `esptool.py` on the host.
 3. **Run the host tests first:** `make docker-test`. All `app_logic` tests must pass before building firmware.
 4. **Wire the hardware** as in the table above and confirm the I2C addresses with an I2C scan (expect `0x76` and `0x3C`).
 5. **Get the project:** `idf.py set-target esp32`.

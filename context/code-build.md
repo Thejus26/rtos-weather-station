@@ -12,7 +12,7 @@
 The firmware has a real compile step (cross-compiling for the ESP32), but most of the logic can be checked on the development machine. The build is split into tiers so the everyday loop stays fast and light.
 
 1. **Tier 1: host build and unit tests (lightweight, every change).** A small Alpine + GCC container (~230 MB) compiles `components/app_logic/` with the tests in `test/host/` and runs them. No ESP32 and no ESP-IDF needed. Runs within `--memory 256m --cpus 1`.
-2. **Tier 2: firmware build (heavy, when `main/` changes).** `idf.py build` with ESP-IDF v5.x, either installed natively or in the official `espressif/idf` container (multi-GB).
+2. **Tier 2: firmware build (heavy, when `main/` changes).** `idf.py build` with ESP-IDF v5.x, in the pinned official `espressif/idf:v5.5.6` container (about 9 GB on disk).
 3. **Tier 3: hardware verification (on the board).** Flashing, I2C/OLED, Wi-Fi/MQTT, timing jitter, stack high-water marks, fault injection and the 24-hour soak test. Docker cannot replace this.
 4. **Warnings are errors on the host.** Tier 1 compiles with `-Wall -Wextra -Werror`.
 5. **Secrets stay out of the repo.** Wi-Fi credentials and broker settings live in `menuconfig`/NVS and the git-ignored `sdkconfig`. `sdkconfig.defaults` holds no credentials.
@@ -20,7 +20,7 @@ The firmware has a real compile step (cross-compiling for the ESP32), but most o
 ```mermaid
 flowchart TD
     Src["components/app_logic/*.c<br/>test/host/test_*.c"] -->|"docker run rtos-host-test make test"| T1["Tier 1: host unit tests<br/>(-Wall -Wextra -Werror)"]
-    T1 -->|pass| T2["Tier 2: idf.py build<br/>(native ESP-IDF or espressif/idf)"]
+    T1 -->|pass| T2["Tier 2: idf.py build<br/>(espressif/idf:v5.5.6 container)"]
     T2 --> Bin["build/*.bin"]
     Bin -->|"idf.py -p COMx flash monitor<br/>(from the host)"| Board["ESP32 board"]
     Board --> T3["Tier 3: timing, stack, fault injection,<br/>24 h soak (results in docs/)"]
@@ -37,8 +37,9 @@ docker version
 # Build the test image (again only when Dockerfile.test changes)
 docker build -f Dockerfile.test -t rtos-host-test .
 
-# Firmware toolchain: ESP-IDF v5.x installed natively (see the Espressif Getting Started guide),
-# or use the espressif/idf container instead (see section 5).
+# Firmware toolchain: the pinned espressif/idf:v5.5.6 container (see section 5). The idf.py
+# commands below run inside it (docker run --rm --memory 2g --cpus 2 ... idf.py <args>;
+# add -it for menuconfig). A native ESP-IDF install is not used.
 idf.py set-target esp32
 idf.py menuconfig        # Wi-Fi SSID/password, MQTT URI/topic, intervals; task watchdog on; CONFIG_FREERTOS_HZ=1000
 ```
@@ -65,7 +66,7 @@ Files to create when implementation starts:
 | **Rebuild the test image** | `docker build -f Dockerfile.test -t rtos-host-test .` |
 | **Host tests via Makefile wrapper** | `make docker-test` (needs `make` on the host; it was not installed on this Windows machine when checked, so use the `docker run` line above) |
 | **Build firmware** | `idf.py build` |
-| **Build firmware in container** | `docker run --rm -v "${PWD}:/project" -w /project espressif/idf:v5.2 idf.py set-target esp32 build` |
+| **Build firmware in container** | `docker run --rm --memory 2g --cpus 2 -v "${PWD}:/project" -w /project espressif/idf:v5.5.6 idf.py set-target esp32 build` |
 | **Flash and monitor** | `idf.py -p COMx flash monitor` (run on the host, not in Docker) |
 | **Configure** | `idf.py menuconfig` |
 | **Firmware size** | `idf.py size` |
@@ -118,7 +119,7 @@ Host binaries go to `build-host/`, so they never mix with ESP-IDF's `build/`. Re
 ## 5. Firmware Build (Tier 2)
 
 - ESP-IDF **v5.x** only (CMake build, `idf.py`). Not the Arduino framework.
-- Native install, or the official container. Pin the container tag to the ESP-IDF version in use (`espressif/idf:v5.2` in the examples). The image is several GB and its first build is slow. It was not pulled or measured during planning.
+- Native install, or the official container. The project uses the container route, pinned to `espressif/idf:v5.5.6` (never `latest`). Always run it with `--memory 2g --cpus 2`; the Docker VM is also capped at 3 GB and 2 CPUs in `~/.wslconfig`, so a build cannot starve the laptop. The image measures 9.22 GB on disk (about 5 GB compressed) and its first build is slow.
 - The container produces `build/*.bin`. Flash from the host: USB serial passthrough from Docker on Windows is unreliable.
 - Set `CONFIG_FREERTOS_HZ=1000` and enable the task watchdog (`sdkconfig.defaults` or `menuconfig`).
 - Run Tier 1 first. Do not build firmware while host tests fail.
