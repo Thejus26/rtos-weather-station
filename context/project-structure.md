@@ -62,7 +62,7 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── requirements-dev.txt            [exists]
 ├── .dockerignore                   [exists]   Excludes build/, build-host/, managed_components/, sdkconfig, .venv/, graphify-out/.
 ├── .gitignore                      [exists]   Ignores build/, build-host/, managed_components/, sdkconfig, sdkconfig.old, .venv/, graphify-out/, Python caches, .claude/settings.local.json.
-├── Makefile                        [planned]  `make test` (host), `make docker-test` (in container), `make clean`.
+├── Makefile                        [exists]   `make test` (host), `make docker-test` (in container), `make clean`.
 ├── context/                        [exists]   See "Current state" for the file list.
 ├── main/                           [planned]  Firmware. Built only by the ESP-IDF toolchain.
 │   ├── main.c                      Creates queues, mutexes, event group and tasks.
