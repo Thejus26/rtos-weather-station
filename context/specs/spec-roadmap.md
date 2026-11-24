@@ -109,7 +109,7 @@ The overview does not number most of its requirements. These IDs are assigned he
 
 | ID | Requirement | Source |
 |----|-------------|--------|
-| BLD-1 | Lightweight host test image (Alpine + GCC, about 280 MB) running within 256 MB and 1 CPU | Docker workflow |
+| BLD-1 | Lightweight host test image (Alpine + GCC, about 230 MB) running within 256 MB and 1 CPU | Docker workflow |
 | BLD-2 | `make test` / `make docker-test` with `-Wall -Wextra -Werror`, non-zero exit on failure | Docker workflow |
 | BLD-3 | Firmware build with ESP-IDF v5.x, natively or in the `espressif/idf` container | Docker workflow / Setup |
 | BLD-4 | Flash and monitor from the host, not from Docker | Docker workflow / Setup |
@@ -200,7 +200,7 @@ The overview does not settle these. Decide in the sprint shown, and log the outc
 | ID | Task | Covers | After | Size | Done when |
 |----|------|--------|-------|:----:|-----------|
 | s0-t1-parts-and-hardware-check | Parts check: ESP32-DevKitC (WROOM-32E, 4 MB), BME280 breakout (note its address strap and whether it has pull-ups), SSD1306 128x64 I2C OLED, push button, LED + 330 ohm resistor, breadboard, jumpers, 4.7 k resistors, USB data cable, logic analyser (needed for S7 jitter measurement). Order anything missing now. | HW-1, HW-2, HW-3, HW-4, HW-5, HW-6 | - | S | Every part is in hand or on order, and pull-up presence is noted |
-| s0-t2-test-image | Install Docker. Create `Dockerfile.test` (`alpine:3.20`, `build-base`, `make`, `WORKDIR /work`) and `.dockerignore`. | BLD-1 | - | S | `docker build -f Dockerfile.test -t rtos-host-test .` succeeds; image is about 280 MB |
+| s0-t2-test-image | Install Docker. Create `Dockerfile.test` (`alpine:3.20`, `build-base`, `make`, `WORKDIR /work`) and `.dockerignore`. | BLD-1 | - | S | `docker build -f Dockerfile.test -t rtos-host-test .` succeeds; image is about 230 MB |
 | s0-t3-makefile | Create `Makefile` with `test`, `docker-test`, `clean` from the reference in `code-build.md` section 4 (recipe lines use tabs; host binaries go to `build-host/`). | BLD-2 | s0-t2-test-image | S | `make` parses; targets match the reference |
 | s0-t4-harness-smoke-test | Add a temporary `test/host/test_smoke.c`. Prove a passing test exits 0 and a deliberately failing `assert` stops `make` with a non-zero exit, under `--memory 256m --cpus 1`. | BLD-1, BLD-2 | s0-t3-makefile | S | Both outcomes observed; resource caps respected |
 | s0-t5-install-esp-idf | Install ESP-IDF v5.x natively (or commit to the container route) and record the exact version. | PLT-1, BLD-3 | - | M | `idf.py --version` prints a v5.x version |
@@ -497,7 +497,7 @@ Generated from the "Covers" column of the task tables. Regenerate after any edit
 | ERR-4 | Queue full: drop oldest, count the drop, log it | s3-t11-process-task-publish-queue, s5-t10-outage-buffering, s6-t10-drop-counters, s6-t11-fault-injection-hooks, s7-t10-fault-injection-matrix |
 | ERR-5 | Task hang: task watchdog logs the cause and restarts | s6-t7-task-watchdog, s6-t9-reset-reason-logging, s6-t11-fault-injection-hooks, s7-t8-verify-watchdog, s7-t10-fault-injection-matrix |
 | ERR-6 | Low heap (for example below 20 KB): log a warning, restart if it keeps falling | s1-t13-heap-policy, s1-t14-heap-policy-test, s6-t8-heap-monitor, s6-t11-fault-injection-hooks, s7-t10-fault-injection-matrix |
-| BLD-1 | Lightweight host test image (Alpine + GCC, about 280 MB) running within 256 MB and 1 CPU | s0-t2-test-image, s0-t4-harness-smoke-test |
+| BLD-1 | Lightweight host test image (Alpine + GCC, about 230 MB) running within 256 MB and 1 CPU | s0-t2-test-image, s0-t4-harness-smoke-test |
 | BLD-2 | `make test` / `make docker-test` with `-Wall -Wextra -Werror`, non-zero exit on failure | s0-t3-makefile, s0-t4-harness-smoke-test, s1-t3-moving-average-test, s1-t5-validate-test, s1-t7-dew-point-test, s1-t8-unit-convert, s1-t10-backoff-test, s1-t12-fault-policy-test, s1-t14-heap-policy-test, s1-t16-reading-json-test, s1-t18-full-suite-run, s3-t16-keep-gates-green, s6-t12-keep-gates-green, s7-t15-final-gates-run |
 | BLD-3 | Firmware build with ESP-IDF v5.x, natively or in the `espressif/idf` container | s0-t5-install-esp-idf, s0-t6-scaffold-project, s0-t7-container-firmware-build, s3-t16-keep-gates-green, s6-t12-keep-gates-green, s7-t15-final-gates-run |
 | BLD-4 | Flash and monitor from the host, not from Docker | s0-t11-flash-scaffold |

@@ -16,13 +16,13 @@ Install Docker. Create `Dockerfile.test` (`alpine:3.20`, `build-base`, `make`, `
 ## Acceptance criteria
 
 - [ ] `docker build -f Dockerfile.test -t rtos-host-test .` succeeds.
-- [ ] Image size is about 280 MB.
+- [ ] Image size is about 230 MB.
 
 ## Requirements covered
 
 | ID | Requirement |
 |----|-------------|
-| BLD-1 | Lightweight host test image (Alpine + GCC, about 280 MB) running within 256 MB and 1 CPU |
+| BLD-1 | Lightweight host test image (Alpine + GCC, about 230 MB) running within 256 MB and 1 CPU |
 
 ## Dependencies
 

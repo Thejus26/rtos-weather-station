@@ -11,7 +11,7 @@ A multi-task weather station that samples temperature and humidity, filters the 
 **Platform decision:** ESP32 DevKitC with ESP-IDF v5.x and FreeRTOS (justification in [Platform Selection](#platform-selection-esp32-vs-stm32)).
 
 **Build and test workflow:** Docker-based, split into two tiers (details in [Build and Test with Docker](#build-and-test-with-docker)).
-- **Tier 1, host build and unit tests (lightweight):** a small Alpine + GCC container (~280 MB) compiles the hardware-independent C logic (moving average, validation, dew point) and runs its unit tests on the development machine. It needs no ESP32 and no ESP-IDF, and runs comfortably within 256 MB of RAM and one CPU.
+- **Tier 1, host build and unit tests (lightweight):** a small Alpine + GCC container (~230 MB) compiles the hardware-independent C logic (moving average, validation, dew point) and runs its unit tests on the development machine. It needs no ESP32 and no ESP-IDF, and runs comfortably within 256 MB of RAM and one CPU.
 - **Tier 2, firmware build (heavy, on demand):** the ESP32 cross-compile uses the official `espressif/idf` image, or a native ESP-IDF install. It is several GB and is only needed to produce `weather_station.bin`.
 - **On hardware only:** flashing, I2C/OLED, Wi-Fi/MQTT, timing jitter, stack high-water marks, fault injection and the 24-hour soak test. Docker cannot replace the device for these.
 
@@ -173,13 +173,13 @@ Only `components/app_logic/` and `test/host/` are compiled in the test container
 
 | Activity | Where | Why |
 |----------|-------|-----|
-| Compile and unit-test `app_logic` (moving average, validation, dew point) | **Test container** (Alpine + GCC, ~280 MB) | Pure C, needs only `gcc`, `make` and `libm`. Fast and reproducible. |
+| Compile and unit-test `app_logic` (moving average, validation, dew point) | **Test container** (Alpine + GCC, ~230 MB) | Pure C, needs only `gcc`, `make` and `libm`. Fast and reproducible. |
 | Static checks and warnings (`-Wall -Wextra -Werror`, optional `cppcheck`) | **Test container** | Same toolchain on every machine and in CI. |
 | Cross-compile the ESP32 firmware | `espressif/idf:v5.x` container, or a native ESP-IDF install | Needs the Xtensa toolchain and ESP-IDF, which is several GB. Not part of the lightweight workflow. |
 | Flash and monitor | Host machine (`idf.py -p COMx flash monitor`) | USB serial passthrough from Docker on Windows is unreliable. Flash from the host. |
 | Timing jitter, stack high-water marks, I2C/OLED, Wi-Fi/MQTT, fault injection, 24 h soak | Real ESP32 | These depend on real hardware and the real FreeRTOS scheduler. |
 
-The test container was checked with a sample dew-point function and test: the image builds to about 282 MB and the test compiles with `-Wall -Wextra -Werror` and passes under `--memory 256m --cpus 1`. The `espressif/idf` image was not pulled or measured.
+The test container was checked with a sample dew-point function and test: the image builds to about 231 MB (an earlier check measured about 282 MB) and the test compiles with `-Wall -Wextra -Werror` and passes under `--memory 256m --cpus 1`. The `espressif/idf` image was not pulled or measured.
 
 ### Test image
 

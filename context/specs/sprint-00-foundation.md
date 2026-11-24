@@ -23,7 +23,7 @@ Effort uses the roadmap's relative sizes: S = one focused sitting, M = a few sit
 - **Description:** Install Docker. Create `Dockerfile.test` (`alpine:3.20`, `build-base`, `make`, `WORKDIR /work`) and `.dockerignore`.
 - **Acceptance criteria:**
   - `docker build -f Dockerfile.test -t rtos-host-test .` succeeds.
-  - Image size is about 280 MB.
+  - Image size is about 230 MB.
 - **Dependencies:** None
 - **Effort:** S
 - **Covers:** BLD-1

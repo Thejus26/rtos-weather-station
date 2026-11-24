@@ -11,7 +11,7 @@
 
 The firmware has a real compile step (cross-compiling for the ESP32), but most of the logic can be checked on the development machine. The build is split into tiers so the everyday loop stays fast and light.
 
-1. **Tier 1: host build and unit tests (lightweight, every change).** A small Alpine + GCC container (~280 MB) compiles `components/app_logic/` with the tests in `test/host/` and runs them. No ESP32 and no ESP-IDF needed. Runs within `--memory 256m --cpus 1`.
+1. **Tier 1: host build and unit tests (lightweight, every change).** A small Alpine + GCC container (~230 MB) compiles `components/app_logic/` with the tests in `test/host/` and runs them. No ESP32 and no ESP-IDF needed. Runs within `--memory 256m --cpus 1`.
 2. **Tier 2: firmware build (heavy, when `main/` changes).** `idf.py build` with ESP-IDF v5.x, either installed natively or in the official `espressif/idf` container (multi-GB).
 3. **Tier 3: hardware verification (on the board).** Flashing, I2C/OLED, Wi-Fi/MQTT, timing jitter, stack high-water marks, fault injection and the 24-hour soak test. Docker cannot replace this.
 4. **Warnings are errors on the host.** Tier 1 compiles with `-Wall -Wextra -Werror`.

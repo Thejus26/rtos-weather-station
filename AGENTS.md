@@ -41,7 +41,7 @@ If the code and the specification disagree, ask before changing either.
 Planned workflow (files are not created yet; see `context/project-overview.md`, section "Build and Test with Docker"):
 
 ```
-# host unit tests in the lightweight container (Alpine + GCC, ~280 MB)
+# host unit tests in the lightweight container (Alpine + GCC, ~230 MB)
 docker build -f Dockerfile.test -t rtos-host-test .
 docker run --rm --memory 256m --cpus 1 -v "${PWD}:/work" rtos-host-test make test
 make docker-test                      # wrapper for the line above

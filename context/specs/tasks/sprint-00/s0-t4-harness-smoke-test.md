@@ -22,7 +22,7 @@ Add a temporary `test/host/test_smoke.c`. Prove a passing test exits 0 and a del
 
 | ID | Requirement |
 |----|-------------|
-| BLD-1 | Lightweight host test image (Alpine + GCC, about 280 MB) running within 256 MB and 1 CPU |
+| BLD-1 | Lightweight host test image (Alpine + GCC, about 230 MB) running within 256 MB and 1 CPU |
 | BLD-2 | `make test` / `make docker-test` with `-Wall -Wextra -Werror`, non-zero exit on failure |
 
 ## Dependencies

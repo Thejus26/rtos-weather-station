@@ -58,9 +58,9 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── CLAUDE.md                       [exists]
 ├── CMakeLists.txt                  [planned]  ESP-IDF project entry point.
 ├── sdkconfig.defaults              [planned]  Defaults: FreeRTOS tick 1000 Hz, task watchdog on. No credentials.
-├── Dockerfile.test                 [planned]  Lightweight host build/test image (Alpine + GCC).
+├── Dockerfile.test                 [exists]   Lightweight host build/test image (Alpine + GCC).
 ├── requirements-dev.txt            [exists]
-├── .dockerignore                   [planned]  Excludes build/, build-host/, managed_components/, sdkconfig, .venv/, graphify-out/.
+├── .dockerignore                   [exists]   Excludes build/, build-host/, managed_components/, sdkconfig, .venv/, graphify-out/.
 ├── .gitignore                      [exists]   Ignores build/, build-host/, managed_components/, sdkconfig, sdkconfig.old, .venv/, graphify-out/, Python caches, .claude/settings.local.json.
 ├── Makefile                        [planned]  `make test` (host), `make docker-test` (in container), `make clean`.
 ├── context/                        [exists]   See "Current state" for the file list.
