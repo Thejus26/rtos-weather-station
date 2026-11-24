@@ -264,3 +264,36 @@ Pin the exact tag to the ESP-IDF version in use. This produces the `.bin` files 
 - [ ] Not started
 
 ## Notes
+
+### Parts check (s0-t1)
+
+**Decision (2026-11-24, from the project owner):** this is a learning project and the hardware will **not** be bought. The goal is to write the code only. No part below is in hand or on order, so the acceptance criterion "every part is in hand or on order" is **waived**, not met.
+
+Consequences:
+- No hardware behaviour (I2C, timing, stack use, Wi-Fi, jitter) will be verified on a real board. Do not claim any as verified.
+- The `[HW]` tasks (for example `s0-t11-flash-scaffold`, `s2-t1-wire-circuit`) and the Sprint 7 logic-analyser jitter measurement cannot be run. Treat them as deferred until hardware exists.
+- Host-testable work (`components/app_logic/`, `test/host/`) and the firmware build (`idf.py build`) are unaffected.
+
+| Part | Requirement | Status |
+|------|-------------|--------|
+| ESP32-DevKitC, WROOM-32E, 4 MB flash | HW-1 | not acquired (code-only build) |
+| BME280 breakout (I2C) | HW-2 | not acquired |
+| SSD1306 128x64 I2C OLED | HW-3 | not acquired |
+| Push button | HW-4 | not acquired |
+| LED + 330 ohm resistor | HW-5 | not acquired |
+| Breadboard | HW-6 | not acquired |
+| Jumper wires | HW-6 | not acquired |
+| 4.7 k resistors (x2) | HW-6 | not acquired |
+| USB data cable (data lines, not charge-only) | HW-1 | not acquired |
+| Logic analyser (needed for the Sprint 7 jitter measurement) | Sprint 7 | not acquired |
+
+### I2C breakout notes (s0-t1)
+
+No breakout boards exist, so there is nothing to inspect. Pull-up presence, address strap and logic level are **not applicable** for now.
+
+| Breakout | Pull-ups on SDA/SCL? (value) | Address strap | Logic level |
+|----------|------------------------------|---------------|-------------|
+| BME280 | n/a (no board) | `0x76` or `0x77` per spec; code must support both | n/a |
+| SSD1306 | n/a (no board) | `0x3C` per spec | n/a |
+
+Pull-up conclusion for Sprint 2: none. If hardware is bought later, check each board and add external 4.7 k on SDA (GPIO21) and SCL (GPIO22) only if neither breakout has pull-ups.
