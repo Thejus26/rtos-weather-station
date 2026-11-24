@@ -73,7 +73,8 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 │   └── app_logic/                  [planned]  Pure C, no ESP-IDF or FreeRTOS includes.
 │       └── (moving_average, validate, dew_point)
 ├── test/
-│   └── host/                       [planned]  Host unit tests for app_logic: test_<module>.c.
+│   └── host/                       [exists]   Host unit tests for app_logic: test_<module>.c.
+│       └── test_smoke.c            [exists]   TEMPORARY harness smoke test (s0-t4); deleted in s1-t18.
 └── docs/                           [planned]  Wiring diagram, task diagram, test results, measured stack high-water marks.
 ```
 
