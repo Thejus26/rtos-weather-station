@@ -26,7 +26,27 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
     ├── current-feature.md          [exists]  Tracker for the feature in progress.
     ├── feature-history.md          [exists]  Archive of completed features.
     └── specs/                      [exists]  Feature specs (for example for `/feature load`) go here.
-        └── spec-roadmap.md         [exists]  Sprint-by-sprint implementation roadmap with requirement traceability.
+        ├── spec-roadmap.md         [exists]  Sprint-by-sprint implementation roadmap with requirement traceability.
+        ├── spec-00-foundation.md   [exists]  Sprint 0: Docker test loop, ESP-IDF scaffold, config files.
+        ├── spec-01-app-logic.md    [exists]  Sprint 1: pure-C modules with host unit tests.
+        ├── spec-02-drivers.md      [exists]  Sprint 2: hardware bring-up and drivers.
+        ├── spec-03-rtos-core.md    [exists]  Sprint 3: shared objects, tasks, sensing pipeline.
+        ├── spec-04-display-button.md [exists]  Sprint 4: OLED task, button ISR and semaphore.
+        ├── spec-05-connectivity.md [exists]  Sprint 5: Wi-Fi, SNTP, MQTT, configuration.
+        ├── spec-06-reliability.md  [exists]  Sprint 6: monitor, recovery, watchdog, heap, LED, fault injection.
+        ├── spec-07-verification.md [exists]  Sprint 7: timing, stack, fault and soak evidence.
+        ├── spec-08-docs-acceptance.md [exists]  Sprint 8: documentation, demo, acceptance checks.
+        ├── sprint-00-foundation.md [exists]  Sprint 0 task spec (per-task description, acceptance criteria, dependencies, effort).
+        ├── sprint-01-pure-c-logic.md [exists]  Sprint 1 task spec.
+        ├── sprint-02-hardware-bring-up.md [exists]  Sprint 2 task spec.
+        ├── sprint-03-rtos-core.md  [exists]  Sprint 3 task spec.
+        ├── sprint-04-display-button.md [exists]  Sprint 4 task spec.
+        ├── sprint-05-connectivity.md [exists]  Sprint 5 task spec.
+        ├── sprint-06-reliability.md [exists]  Sprint 6 task spec.
+        ├── sprint-07-verification.md [exists]  Sprint 7 task spec.
+        ├── sprint-08-documentation-acceptance.md [exists]  Sprint 8 task spec.
+        ├── sprint-09-backlog.md    [exists]  Backlog (stretch) task spec. Placeholders, not scheduled.
+        └── tasks/                  [exists]  One spec per roadmap task (129 files) in sprint-00/ to sprint-09/, named <task-id>.md, plus README.md as the index.
 ```
 
 ## Target structure
