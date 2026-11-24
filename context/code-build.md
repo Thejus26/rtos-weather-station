@@ -175,7 +175,7 @@ python -m venv .venv
 ```
 
 - `--code-only` parses with tree-sitter on this machine. No LLM calls, and no files are sent to an external service. Markdown docs are skipped in this mode.
-- Re-run the update command after code changes, and after commits (the hook compares the graph's age with the latest commit).
+- Re-run the update command after code changes. The Stop hook only asks for it when a commit newer than the graph touched a file type graphify parses (source files and JSON). Docs-only commits (Markdown, text) are ignored, and a missing `graph.json` still triggers it.
 - **Do not run `graphify install`.** It copies skills into global platform config folders.
 - Running graphify can also refresh an already-installed graphify skill in a global config folder (it updated one under `~/.gemini` on 2026-11-19 and kept a `SKILL.md.bak`). Set `GRAPHIFY_NO_AUTO_REFRESH=1` to prevent that.
 - On 2026-11-19 the graph covered only the 12 Python hook scripts in `.claude/` and `.agents/`, because no C code exists yet. It becomes useful for this project once `main/` and `components/` have source.
