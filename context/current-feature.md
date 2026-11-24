@@ -12,3 +12,4 @@ Not Started
 ## History
 <!-- Append-only. Keep the 3-5 most recent completed features here; archive older ones to context/feature-history.md. -->
 - **s0-t1-parts-and-hardware-check** (2026-11-24): parts checklist and I2C breakout notes added to README Notes. Acceptance criteria waived, not met: the owner is building code-only and will not buy hardware, so `[HW]` tasks and the Sprint 7 jitter measurement are deferred. Commit `6ec1ecc`.
+- **s0-t2-test-image** (2026-11-24): added `Dockerfile.test` (alpine:3.20, build-base, make, WORKDIR /work) and `.dockerignore`. Build succeeds; image measured 230,623,533 bytes (~231 MB) on Docker 29.8.1, so the documented size was corrected from about 280 MB to about 230 MB across the docs. `make test` under the caps is deferred to s0-t3 and s0-t4. Commit `75dda2a`.
