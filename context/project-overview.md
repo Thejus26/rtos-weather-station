@@ -156,6 +156,7 @@ Priorities follow the rule that tasks needing the most predictable timing and th
 ├── main/
 │   ├── main.c              # creates queues, mutexes, tasks
 │   ├── app_config.h        # pins, periods, priorities, queue sizes
+│   ├── Kconfig.projbuild   # "Weather Station" menuconfig menu: periods, device ID, BME280 address
 │   ├── tasks/              # sensor, process, display, comms, monitor
 │   └── drivers/            # bme280, ssd1306 wrappers
 ├── components/

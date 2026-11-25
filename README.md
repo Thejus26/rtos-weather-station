@@ -153,6 +153,7 @@ Priorities follow the rule that tasks needing the most predictable timing and th
 ├── main/
 │   ├── main.c              # creates queues, mutexes, tasks
 │   ├── app_config.h        # pins, periods, priorities, queue sizes
+│   ├── Kconfig.projbuild   # "Weather Station" menuconfig menu: periods, device ID, BME280 address
 │   ├── tasks/              # sensor, process, display, comms, monitor
 │   └── drivers/            # bme280, ssd1306 wrappers
 ├── components/
@@ -341,6 +342,18 @@ Added `main/app_config.h`: macros only, no includes, so it is checked on the hos
 Verified on 2026-11-25 in `rtos-host-test` (`--memory 256m --cpus 1`): a throwaway file of `_Static_assert`s for every value compiled with `-std=c11 -Wall -Wextra -Werror -pedantic -fsyntax-only` (exit 0), and one deliberately wrong assert made the same compile fail (exit 1). `APP_WDT_TIMEOUT_S` matches `CONFIG_ESP_TASK_WDT_TIMEOUT_S` in `sdkconfig.defaults` (checked by grep). `main.c` does not include the header yet, so the firmware build was not re-run.
 
 Left out on purpose, because the overview does not give a value: I2C clock speed (`s2-t3`), the shorter `process_task`/`monitor_task` waits (D-9), and the heap-restart count N (D-14). The sample period, publish period and BME280 address may later come from Kconfig (`s0-t10`). Stack sizes here are the starting budget. Headroom is measured on the board.
+
+### `Kconfig.projbuild` (s0-t10)
+
+Added `main/Kconfig.projbuild` with a "Weather Station" menu: sample period (default 5000 ms, range 1000 to 60000), publish period (default 30000 ms, range from the sample period up to 600000, so there is always a new reading to publish), device ID (placeholder default `esp32-weather-01`) and BME280 I2C address (hex, default 0x76, range 0x76 to 0x77). The period ranges are guard rails chosen here, not values from the overview. Wi-Fi and MQTT options are added in `s5-t1`, and `s2-t7` wires the address into the driver. ESP-IDF finds the file in the `main` component, so `main/CMakeLists.txt` did not change.
+
+The symbols use the prefix `WEATHER_` (for example `CONFIG_WEATHER_SAMPLE_PERIOD_MS`), not `WS_`. ESP-IDF's websocket transport already defines `CONFIG_WS_TRANSPORT` and `CONFIG_WS_BUFFER_SIZE`, so `WS_` would share a namespace with unrelated options. Later Kconfig tasks should keep `WEATHER_`.
+
+Verified on 2026-11-25 in `espressif/idf:v5.5.6` (`--memory 2g --cpus 2`). `idf.py reconfigure` exits 0 and the generated `sdkconfig` has a `# Weather Station` section with all four values. `build/config/sdkconfig.h` has the four `#define CONFIG_WEATHER_*` lines with the same defaults. A scratch `sdkconfig` with a sample period of 10 and an address of 0x80 was reconfigured: both values were ignored with a warning and fell back to the defaults. The publish period's lower bound is the sample period: a scratch config with sample 60000 and publish 5000 gave publish 60000 with a warning, equal values (10000 and 10000) were accepted, and an empty config kept 5000 and 30000. `idf.py build` then exits 0 with no warnings and `weather_station.bin` is 162,224 bytes, unchanged from `s0-t8`. That is expected, because nothing reads the symbols yet. `sdkconfig.defaults` was not changed and holds no device ID.
+
+Not checked: the interactive `idf.py menuconfig` screen was not opened. The `# Weather Station` section in `sdkconfig` is the stand-in for "appears in menuconfig". Nothing in `main/` uses the symbols, so there is no runtime behaviour to verify.
+
+Known duplication: `app_config.h` still defines `APP_SAMPLE_PERIOD_MS` (5000), `APP_PUBLISH_PERIOD_MS` (30000) and `APP_I2C_ADDR_BME280` (0x76) as plain macros, so they could drift from the Kconfig defaults. They were left alone on purpose, to keep `app_config.h` include-free and host-checkable. Tying them together is for the tasks that first consume the values (`s2-t7` for the address, Sprint 3 for the periods).
 
 ### I2C breakout notes (s0-t1)
 

@@ -1,0 +1,41 @@
+menu "Weather Station"
+
+    config WEATHER_SAMPLE_PERIOD_MS
+        int "Sensor sample period (ms)"
+        default 5000
+        range 1000 60000
+        help
+            How often sensor_task reads the BME280, in milliseconds (FR-1).
+            The project default is 5000 (every 5 s). The range is a guard
+            rail chosen for this project, not a value from the overview.
+
+    config WEATHER_PUBLISH_PERIOD_MS
+        int "MQTT publish period (ms)"
+        default 30000
+        range WEATHER_SAMPLE_PERIOD_MS 600000
+        help
+            How often a reading is published to the MQTT broker, in
+            milliseconds (FR-6). The project default is 30000 (every 30 s).
+            It cannot be shorter than the sample period, so there is always
+            a new reading to publish. The range is a guard rail chosen for this
+            project, not a value from the overview.
+
+    config WEATHER_DEVICE_ID
+        string "Device ID"
+        default "esp32-weather-01"
+        help
+            Identifier included in every published JSON reading (FR-6).
+            The default is a placeholder, not a real identifier. Set your own
+            here or in the git-ignored sdkconfig. Do not put a real ID in
+            sdkconfig.defaults.
+
+    config WEATHER_BME280_I2C_ADDR
+        hex "BME280 I2C address"
+        default 0x76
+        range 0x76 0x77
+        help
+            I2C address of the BME280 (HW-2). Use 0x76 when SDO is tied to
+            GND and 0x77 when SDO is tied to VDD. The sensor driver reads
+            this value (wired up in s2-t7-bme280-address-config).
+
+endmenu
