@@ -60,7 +60,8 @@ def main() -> None:
                     "hookEventName": "UserPromptSubmit",
                     "additionalContext": (
                         f"Active feature: {title} | Status: {status}. "
-                        f"Follow the /feature workflow and the Python (.venv-only) environment policy."
+                        f"Follow the /feature workflow and the C build policy "
+                        f"(host tests first, then idf.py build; see .claude/rules/build.md)."
                     ),
                 }
             }, sys.stdout)

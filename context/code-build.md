@@ -163,7 +163,7 @@ Used for Tier 1 (host build and tests) and, optionally, the Tier 2 firmware buil
 
 ## 9. Optional Tooling: graphify Knowledge Graph (Python `.venv`)
 
-The only Python in this project. It is dev tooling for navigating the code and is not part of the firmware build, the host tests or the quality gates. The project's Stop hook expects `graphify-out/graph.json` to exist.
+The only Python in this project. It is dev tooling for navigating the code and is not part of the firmware build, the host tests or the quality gates. The decision (s0-t12) is to keep it as optional tooling.
 
 - **Package**: `graphifyy` (two y's) from PyPI. The name `graphify` does not exist there. Pinned in `requirements-dev.txt` to **0.9.110**, the newest release that supports the installed Python 3.10 (0.9.111 and later need 3.11).
 - **Environment**: a project-local `.venv`. Nothing is installed globally.
@@ -176,7 +176,7 @@ python -m venv .venv
 ```
 
 - `--code-only` parses with tree-sitter on this machine. No LLM calls, and no files are sent to an external service. Markdown docs are skipped in this mode.
-- Re-run the update command after code changes. The Stop hook only asks for it when a commit newer than the graph touched a file type graphify parses (source files and JSON). Docs-only commits (Markdown, text) are ignored, and a missing `graph.json` still triggers it.
+- Re-run the update command after C source changes. The Stop hook (`graphify-staleness.py`) asks for it only when a commit newer than the graph touched C or C++ source (`.c`, `.h`, `.cpp`, `.hpp`), or when `graph.json` is missing, graphify is installed in `.venv` and C source exists. It stays silent for docs, JSON, hook and config commits, for a project with no C source yet, and where graphify is not installed. The graph's age is the newest file in `graphify-out/`.
 - **Do not run `graphify install`.** It copies skills into global platform config folders.
 - Running graphify can also refresh an already-installed graphify skill in a global config folder (it updated one under `~/.gemini` on 2026-11-19 and kept a `SKILL.md.bak`). Set `GRAPHIFY_NO_AUTO_REFRESH=1` to prevent that.
-- On 2026-11-19 the graph covered only the 12 Python hook scripts in `.claude/` and `.agents/`, because no C code exists yet. It becomes useful for this project once `main/` and `components/` have source.
+- On 2026-11-19 the graph covered only the Python hook scripts in `.claude/` and `.agents/` (12 at that time, 10 after s0-t12), because no C code existed yet. It becomes useful for this project once `main/` and `components/` have real source. The scaffold `main/main.c` now exists, so the Stop hook applies.

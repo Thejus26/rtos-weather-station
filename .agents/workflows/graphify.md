@@ -1,10 +1,14 @@
 ---
 name: graphify
-description: Turn any folder of files into a navigable knowledge graph
+description: Refresh the optional knowledge graph of the C source (graphify, run from the project .venv)
 ---
 
 # Workflow: graphify
 
-Follow the graphify skill to run the full pipeline.
+Run graphify using the project's local virtual environment only (never global python, pipx, or uv; see `.agents/rules/graphify.md`):
+
+```powershell
+& .\.venv\Scripts\graphify.exe <path> --update --code-only
+```
 
 If no path argument is given, use `.` (current directory).

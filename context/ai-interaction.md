@@ -8,7 +8,6 @@
 - Ask before large refactors or architectural changes.
 - Don't add features or dependencies not in the project scope ([`project-overview.md`](project-overview.md)). Stay on ESP-IDF v5.x with native FreeRTOS: no Arduino framework, no platform change.
 - Never delete files without explicit confirmation.
-- **Precedence**: the files in `context/` are authoritative for this project. The Python-specific rules, hooks and skills under `.claude/` and `.agents/` come from an earlier Python template. Do not follow their pytest, ruff or mypy instructions here. The project-local `.venv` exists only for the optional graphify tool ([`code-build.md`](code-build.md) section 9). (Remove this note once those files are adapted.)
 
 ---
 

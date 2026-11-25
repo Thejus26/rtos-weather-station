@@ -14,14 +14,14 @@
     ]
   },
 
-  "unsafe-code-sentry": {
+  "c-code-guard": {
     "PreToolUse": [
       {
         "matcher": "write_to_file|replace_file_content",
         "hooks": [
           {
             "type": "command",
-            "command": "python scripts\\guard-unsafe-code.py",
+            "command": "python scripts\\guard-c-code.py",
             "timeout": 5
           }
         ]

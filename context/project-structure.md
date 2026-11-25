@@ -11,8 +11,8 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── README.md                       [exists]  Project summary. Mirrors project-overview.md, plus Status and Notes.
 ├── AGENTS.md                       [exists]  Shared context and rules for AI agents.
 ├── CLAUDE.md                       [exists]  Imports AGENTS.md, plus Claude Code notes.
-├── .claude/                        [exists]  Claude Code config: rules, hooks, skills, agents. Inherited from a Python template, not yet adapted to this project.
-├── .agents/                        [exists]  Mirror of .claude/ for other agents. Same status.
+├── .claude/                        [exists]  Claude Code config: rules (c-standards, build, graphify), hooks (C code guard, venv guard, commit lint, feature reminder, graphify Stop hook), skills (feature, research, cleanup, list-components), code-scanner agent, and the /graphify command (commands/graphify.md).
+├── .agents/                        [exists]  Mirror of .claude/ for other agents (hooks live in scripts/, wired by hooks.json; the graphify command is workflows/graphify.md).
 ├── .venv/                          [exists]  Python 3.10 environment for the optional graphify tool only. Not tracked.
 ├── requirements-dev.txt            [exists]  Pins graphifyy==0.9.110 (dev tooling, see code-build.md section 9).
 ├── .gitignore                      [exists]  See the target structure below for what it ignores.

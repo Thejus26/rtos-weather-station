@@ -1,15 +1,14 @@
 ---
 trigger: always_on
-description: Consult the graphify knowledge graph at graphify-out/ for codebase and architecture questions.
+description: Optional graphify knowledge graph at graphify-out/ for codebase questions, run only from the project .venv.
 ---
 
-## graphify & build policy
+## graphify (optional knowledge graph)
 
-This project has a graphify knowledge graph at graphify-out/.
+graphify is optional dev tooling (`context/code-build.md` section 9). The graph lives in `graphify-out/` (git-ignored). It is only useful once `main/` and `components/` contain C code.
 
-Rules:
-- **STRICT REQUIREMENT**: graphify must ONLY and EXCLUSIVELY be run using the local virtual environment `.venv` (`.\.venv\Scripts\graphify.exe` or `.\.venv\Scripts\python.exe -m graphify`). Never use global python, pipx, uv, or system-wide graphify commands.
-- For codebase or architecture questions, when `graphify-out/graph.json` exists, first run `& .\.venv\Scripts\graphify.exe query "<question>"` (CLI) or `query_graph` (MCP). Use `& .\.venv\Scripts\graphify.exe path "<A>" "<B>"` / `shortest_path` for relationships and `& .\.venv\Scripts\graphify.exe explain "<concept>"` / `get_node` for focused concepts.
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- **Environment Policy**: All Python, including graphify, runs through the local `.venv`. Never use the global interpreter, `pip`, `pipx`, or `uv`. Follow `.agents/rules/build.md` exclusively.
+- Run graphify only from the project `.venv`: `& .\.venv\Scripts\graphify.exe ...`. Never use global python, pipx, uv or a system-wide graphify. Do not run `graphify install`.
+- If `graphify-out/graph.json` exists, use it for codebase questions before reading many files: `graphify.exe query "<question>"`, `path "<A>" "<B>"`, `explain "<concept>"`.
+- If `graphify-out/wiki/index.md` exists, navigate it instead of raw files. Read `graphify-out/GRAPH_REPORT.md` only for a broad architecture review.
+- Refresh after C source changes: `& .\.venv\Scripts\graphify.exe . --update --code-only` (tree-sitter only, no network). Set `GRAPHIFY_NO_AUTO_REFRESH=1` to stop it refreshing global skill folders.
+- The graph does not replace the spec. `context/project-overview.md` stays the source of truth, and the graph can be stale or empty. If it disagrees with the code, trust the code.

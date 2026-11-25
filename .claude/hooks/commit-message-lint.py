@@ -34,6 +34,23 @@ PS_HERESTRING_RE = re.compile(r"@(['\"])\s*\n(.*?)\n\1@", re.DOTALL)
 MSG_RE = re.compile(r"""(?:-m|--message)(?:\s+|=)(?:"([^"]+)"|'([^']+)')""", re.DOTALL)
 
 
+# `git [options] commit` at the start of a command (after ; && || | ( or a newline)
+GIT_COMMIT_RE = re.compile(r"(?m)(?:^|[;&|(])\s*git(?:\s+-\S+(?:\s+[^\s-]\S*)?)*\s+commit\b")
+
+
+def _commit_tail(cmd: str):
+    """Return the text from a real `git commit` invocation onwards, or None.
+
+    A `git commit` mentioned inside a heredoc body (for example a script being written
+    to a file) or inside quotes is not a commit, so it is ignored.
+    """
+    spans = [m.span() for m in HEREDOC_RE.finditer(cmd)]
+    for m in GIT_COMMIT_RE.finditer(cmd):
+        if not any(start <= m.start() < end for start, end in spans):
+            return cmd[m.start():]
+    return None
+
+
 def _extract_message(cmd: str):
     """Return the commit message from a git commit command, or None if inline text is absent."""
     for pattern, group in ((HEREDOC_RE, 2), (PS_HERESTRING_RE, 2)):
@@ -61,8 +78,9 @@ def main() -> None:
         data = json.load(sys.stdin)
         cmd = data.get("tool_input", {}).get("command", "")
 
-        # Only inspect git commit commands
-        if "git commit" not in cmd:
+        # Only inspect real git commit commands
+        cmd = _commit_tail(cmd)
+        if cmd is None:
             return
 
         # Skip amend/fixup/squash — they reuse existing messages

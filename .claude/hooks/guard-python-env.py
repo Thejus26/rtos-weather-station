@@ -1,5 +1,5 @@
 """
-Python Environment Guard — PreToolUse hook for Bash | PowerShell.
+Python Environment Guard (graphify tooling only) — PreToolUse hook for Bash | PowerShell.
 
 Denies Python tooling that would run from the global interpreter instead of the
 project's .venv.  Only commands whose executable path contains ".venv" (or that
@@ -15,16 +15,53 @@ import sys
 
 INTERPRETERS = frozenset({"python", "python3", "py", "pythonw"})
 
-# Executables that must resolve to the project's .venv, never the global install
+# Python tooling that must resolve to the project's .venv, never the global install.
+# The C workflow runs through Docker and idf.py; Python remains only for graphify and
+# the stdlib hook scripts.
 VENV_ONLY = INTERPRETERS | frozenset({
-    "pip", "pip3", "pipx", "conda", "poetry", "uv", "virtualenv",
-    "pytest", "ruff", "mypy", "black", "isort", "flake8", "pylint",
+    "pip", "pip3", "pipx", "conda", "poetry", "uv", "virtualenv", "graphify",
 })
 
 # First token of a segment: optional '&' call operator, then "quoted", 'quoted' or bare
 FIRST_TOKEN_RE = re.compile(r"""^\s*&?\s*(?:"([^"]*)"|'([^']*)'|(\S+))(.*)$""", re.DOTALL)
 ENV_ASSIGN_RE = re.compile(r"^\w+=")
 PY_VERSION_SELECTOR_RE = re.compile(r"^-\d(\.\d+)?(-\d+)?$")  # py launcher: -3, -3.10, -3.10-64
+
+
+HEREDOC_RE = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?[ \t]*\n.*?\n[ \t]*\1\b", re.DOTALL)
+FALLBACK_SPLIT_RE = re.compile(r"\s*(?:;|&&|\|\||\||\n)\s*")
+
+
+def _split_segments(cmd: str) -> list:
+    """Split a command on ; && || | and newlines, but only outside quotes and heredocs.
+
+    Text inside quotes (a commit message, a regex) and heredoc bodies is data, not
+    commands. If a quote is left open the command is ambiguous, so fall back to a plain
+    split (which errs towards checking more segments).
+    """
+    cmd = HEREDOC_RE.sub("<<HEREDOC", cmd)
+    segments, current, quote, i = [], [], None, 0
+    while i < len(cmd):
+        ch = cmd[i]
+        if quote:
+            current.append(ch)
+            if ch == quote:
+                quote = None
+        elif ch in "\"'":
+            quote = ch
+            current.append(ch)
+        elif ch in ";|\n" or cmd.startswith("&&", i):
+            segments.append("".join(current))
+            current = []
+            if cmd.startswith("&&", i):
+                i += 1
+        else:
+            current.append(ch)
+        i += 1
+    if quote:
+        return FALLBACK_SPLIT_RE.split(cmd)
+    segments.append("".join(current))
+    return segments
 
 
 def _basename(token: str) -> str:
@@ -63,12 +100,9 @@ def main() -> None:
         data = json.load(sys.stdin)
         cmd = data.get("tool_input", {}).get("command", "")
 
-        # Commands that run through Docker are isolated from the host interpreter
-        if re.search(r"\bdocker\b", cmd, re.IGNORECASE):
-            return
-
-        # Split on shell chaining operators (; && || |) and check each segment
-        for segment in re.split(r"\s*(?:;|&&|\|\||\|)\s*", cmd):
+        # Check each segment's first executable. A segment that starts with `docker` runs
+        # in a container, so it is never in VENV_ONLY and passes.
+        for segment in _split_segments(cmd):
             # Skip leading VAR=value assignments
             while True:
                 stripped = segment.strip()
@@ -90,7 +124,7 @@ def main() -> None:
 
             _deny(
                 f"Python environment policy violation: '{exe}' must not run from the "
-                f"global interpreter. Use '.\\.venv\\Scripts\\python.exe -m <tool> ...' "
+                f"global interpreter. Use '.\\.venv\\Scripts\\{exe}.exe' (Python is only used for graphify here) "
                 f"(create the environment once with 'python -m venv .venv'). "
                 f"See .claude/rules/build.md."
             )

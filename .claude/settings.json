@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-unsafe-code.py\"",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-c-code.py\"",
             "timeout": 5
           }
         ]

@@ -1,43 +1,29 @@
-## Python Environment & Verification Policy
+## Build & Verification Policy (C, ESP-IDF, Docker)
 
-This project runs all Python through its own virtual environment at `.venv/`. The global interpreter is only used once, to create that environment.
+The build specification is `context/code-build.md`. This file is the short version for agents. Run commands from PowerShell at the project root (Git Bash breaks Docker bind-mount paths, or set `MSYS_NO_PATHCONV=1`).
+
+### Tiers
+
+| Tier | When | Command |
+|---|---|---|
+| 1. Host unit tests | Every change to `components/app_logic/`, `test/host/`, `Makefile` or `Dockerfile.test`, and before any firmware build | `docker run --rm --memory 256m --cpus 1 -v "${PWD}:/work" rtos-host-test make test` |
+| 2. Firmware build | Any change to `main/` or other firmware-side files | `docker run --rm --memory 2g --cpus 2 -v "${PWD}:/project" -w /project espressif/idf:v5.5.6 idf.py build` (first build in a fresh tree: `idf.py set-target esp32 build`) |
+| 3. Hardware | Task, queue, timing or fault changes | Board only. Flash and monitor from the host: `idf.py -p COMx flash monitor` (not from Docker) |
 
 ### Rules
 
-1. **VENV ONLY**:
-   - Never run `python`, `pip`, `pytest`, `ruff`, `mypy`, `pipx`, `conda`, `poetry` or `uv` from the global install.
-   - The one exception is creating the environment: `python -m venv .venv`.
-   - Everything else goes through `.\.venv\Scripts\python.exe -m <tool>`.
+1. **Order**: run Tier 1 first. Do not build firmware while host tests fail.
+2. **Warnings are errors** on the host (`-Wall -Wextra -Werror`). Firmware builds must add no new warnings.
+3. **Pinned toolchain**: `espressif/idf:v5.5.6`, never `latest`. Always run it with `--memory 2g --cpus 2`.
+4. **Hardware claims**: a passing Tier 1 or Tier 2 run does not verify hardware behaviour. The project has no board at present, so `[HW]` tasks are deferred and must not be reported as done.
+5. **Secrets**: never in source, logs, tests, `sdkconfig.defaults` or commits. `sdkconfig` is git-ignored.
+6. **Docs in sync**: when files are added, moved or removed, update `context/project-structure.md`. `README.md` and `context/project-overview.md` change together.
+7. **Git scope**: always `git add` explicit paths inside this project, never `git add .` or `-A`. Never stage `build/`, `build-host/`, `managed_components/`, `sdkconfig`, `.venv/` or `graphify-out/`. Do not commit unless asked.
 
-2. **STANDARD COMMANDS** (PowerShell, from the project root):
+### Python (optional graphify tooling only)
 
-   | Purpose | Command |
-   |---|---|
-   | Create environment (once) | `python -m venv .venv` |
-   | Install runtime deps | `.\.venv\Scripts\python.exe -m pip install -r requirements.txt` |
-   | Install dev deps | `.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt` |
-   | Run the app | `.\.venv\Scripts\python.exe -m <package>` (or `.\.venv\Scripts\python.exe src\<file>.py`) |
-   | Run tests | `.\.venv\Scripts\python.exe -m pytest -q` |
-   | Lint | `.\.venv\Scripts\python.exe -m ruff check .` |
-   | Format check | `.\.venv\Scripts\python.exe -m ruff format --check .` |
-   | Type check | `.\.venv\Scripts\python.exe -m mypy src` |
+Python is used only for the optional graphify knowledge graph (`context/code-build.md` section 9) and for the standard-library hook scripts.
 
-3. **DEPENDENCIES**:
-   - Runtime packages go in `requirements.txt`. Test, lint and type-check tools go in `requirements-dev.txt`. Pin versions.
-   - Add a package only when the current feature needs it. Agent frameworks (LangGraph, CrewAI, etc.) are out of scope for this project.
-
-4. **SECRETS**:
-   - API keys live in `.env` (loaded with `python-dotenv`), never in source, logs, tests or commits.
-   - Commit a `.env.example` with placeholder values. Keep `.env` in `.gitignore`.
-
-5. **TESTS NEVER CALL A REAL LLM**:
-   - Use a fake or mocked LLM client so the suite is offline, free and deterministic.
-   - An optional live smoke test must be marked `@pytest.mark.live` and skipped by default.
-
-6. **GIT SCOPE**:
-   - The enclosing git repository may be rooted above this folder. Always `git add` explicit paths inside this project, never `git add .` or `-A` from a parent directory.
-   - Never stage `.venv/`, `.env`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/` or `graphify-out/`.
-
-7. **HOOKS**:
-   - Hook scripts in `.claude/hooks/` use only the standard library, so they run on any Python 3.10+ interpreter and do not need `.venv`.
-   - `guard-python-env.py` enforces rule 1 and denies the offending command with a message.
+- Run `python`, `pip` and `graphify` only through `.\.venv\Scripts\` (`python -m venv .venv` is the one allowed global use). The `guard-python-env.py` hook denies global use.
+- Hook scripts in `.claude/hooks/` use only the standard library, so they run on any Python 3.10+ interpreter.
+- Pin any package in `requirements-dev.txt`. Add one only when the current work needs it.
