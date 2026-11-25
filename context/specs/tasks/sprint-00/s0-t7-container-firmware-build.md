@@ -11,7 +11,9 @@
 
 ## Description
 
-Optional: pull the pinned `espressif/idf` image and build the scaffold in it. Record image size and first-build time, and replace the "not pulled or measured" notes in the docs with the numbers.
+Optional: build the scaffold in the pinned `espressif/idf` container. Record image size and first-build time, and replace the "not pulled or measured" notes in the docs with the numbers.
+
+Update: the image pull was done in s0-t5 and the first build in s0-t6, so this task is now documentation only. It copies the measured numbers into the README Notes. The roadmap row keeps its original wording (the roadmap wins on conflict).
 
 ## Acceptance criteria
 

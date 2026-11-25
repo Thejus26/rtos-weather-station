@@ -302,7 +302,22 @@ Consequences:
 | Resource caps | `--memory 2g --cpus 2` per container, inside a Docker VM capped at 3 GB / 2 CPUs by `~/.wslconfig` (host: 7.7 GB RAM, 8 logical CPUs) |
 | `i2c_master` driver | present (`components/esp_driver_i2c/include/driver/i2c_master.h`), so Sprint 2 decision D-4 can use it |
 
-Not measured yet: pull time (run in a separate window) and the first firmware build time. Those belong to `s0-t6` and `s0-t7`. Flashing would need `esptool` on the host; deferred with the `[HW]` tasks.
+Pull time was not measured: the image was pulled in `s0-t5` without timing. Flashing would need `esptool` on the host; deferred with the `[HW]` tasks.
+
+### First firmware build (s0-t6, s0-t7)
+
+Measured on 2026-11-25 in the `espressif/idf:v5.5.6` container with `--memory 2g --cpus 2`. The firmware is built only. It was never flashed or run, because no board exists.
+
+| Item | Value |
+|------|-------|
+| Command | `docker run --rm --memory 2g --cpus 2 -v "${PWD}:/project" -w /project espressif/idf:v5.5.6 idf.py set-target esp32 build` |
+| Exit code | 0 (not 137, so the 2 GB cap is enough) |
+| First full build time | 578 s, one run, timed around the whole `docker run` (so it includes container start-up, Windows bind-mount I/O, `set-target`, the CMake configure and 1027 ninja steps) |
+| `build/weather_station.bin` | 162,208 bytes (0x279a0); 0xd8660 bytes (85%) free in the 1 MB app partition |
+| `idf.py size` | exit 0 in 9 s; total image 162,093 bytes; flash code 61,686 B; IRAM 52,943 B (40.39%); DRAM 12,508 B (6.92%) |
+| Compiler warnings | none (no `warning:`, `WARNING` or `error:` in the build or size logs) |
+
+Incremental build time was not measured (only `idf.py size`, 9 s, on the finished build). `idf.py set-target` wipes `build/`, so the next build after it is a full one again.
 
 ### I2C breakout notes (s0-t1)
 
