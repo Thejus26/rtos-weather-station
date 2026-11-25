@@ -1,0 +1,14 @@
+# Shared ESP-IDF defaults. Holds no credentials: Wi-Fi and MQTT settings go in
+# menuconfig/NVS and the git-ignored sdkconfig.
+# Read only when sdkconfig is created. After editing, delete sdkconfig or run
+# `idf.py set-target esp32` to regenerate it (fullclean alone keeps sdkconfig).
+
+# TIM-10: FreeRTOS tick 1000 Hz (1 ms resolution)
+CONFIG_FREERTOS_HZ=1000
+
+# TIM-9, FR-9: task watchdog enabled and initialised at startup, 10 s timeout,
+# panic (and so restart) on timeout
+CONFIG_ESP_TASK_WDT_EN=y
+CONFIG_ESP_TASK_WDT_INIT=y
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=10
+CONFIG_ESP_TASK_WDT_PANIC=y

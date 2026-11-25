@@ -319,6 +319,21 @@ Measured on 2026-11-25 in the `espressif/idf:v5.5.6` container with `--memory 2g
 
 Incremental build time was not measured (only `idf.py size`, 9 s, on the finished build). `idf.py set-target` wipes `build/`, so the next build after it is a full one again.
 
+### `sdkconfig.defaults` (s0-t8)
+
+Added `sdkconfig.defaults` with the shared firmware options. It holds no credentials.
+
+| Option | Set to | Was (ESP-IDF default) | Covers |
+|--------|--------|-----------------------|--------|
+| `CONFIG_FREERTOS_HZ` | `1000` | 100 | TIM-10 |
+| `CONFIG_ESP_TASK_WDT_EN` / `CONFIG_ESP_TASK_WDT_INIT` | `y` / `y` | `y` / `y` (stated explicitly) | FR-9 |
+| `CONFIG_ESP_TASK_WDT_TIMEOUT_S` | `10` | 5 | TIM-9 |
+| `CONFIG_ESP_TASK_WDT_PANIC` | `y` (restart on timeout) | not set | TIM-9, FR-9 |
+
+Verified on 2026-11-25 in the container (`--memory 2g --cpus 2`): the old generated `sdkconfig` was deleted, then `idf.py fullclean set-target esp32 build` ran (exit 0, 417 s, no warnings, `weather_station.bin` 162,224 bytes). The new `sdkconfig` and `build/config/sdkconfig.h` show all four values. `sdkconfig.defaults` is read only when `sdkconfig` is created, and `fullclean` alone keeps `sdkconfig`, so after editing it, delete `sdkconfig` or run `set-target`.
+
+This only shows the configuration is applied. It does not show watchdog behaviour: subscribing the three tasks and seeing a stalled task restart after 10 s is `s6-t7` and needs a board. The idle-task watchdog checks stay at their default (on).
+
 ### I2C breakout notes (s0-t1)
 
 No breakout boards exist, so there is nothing to inspect. Pull-up presence, address strap and logic level are **not applicable** for now.

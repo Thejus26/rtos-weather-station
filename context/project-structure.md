@@ -67,7 +67,7 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── AGENTS.md                       [exists]
 ├── CLAUDE.md                       [exists]
 ├── CMakeLists.txt                  [exists]   ESP-IDF project entry point (project name `weather_station`).
-├── sdkconfig.defaults              [planned]  Defaults: FreeRTOS tick 1000 Hz, task watchdog on. No credentials.
+├── sdkconfig.defaults              [exists]   Defaults: FreeRTOS tick 1000 Hz, task watchdog on. No credentials.
 ├── Dockerfile.test                 [exists]   Lightweight host build/test image (Alpine + GCC).
 ├── requirements-dev.txt            [exists]
 ├── .dockerignore                   [exists]   Excludes build/, build-host/, managed_components/, sdkconfig, .venv/, graphify-out/.
