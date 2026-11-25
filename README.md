@@ -334,6 +334,14 @@ Verified on 2026-11-25 in the container (`--memory 2g --cpus 2`): the old genera
 
 This only shows the configuration is applied. It does not show watchdog behaviour: subscribing the three tasks and seeing a stalled task restart after 10 s is `s6-t7` and needs a board. The idle-task watchdog checks stay at their default (on).
 
+### `app_config.h` (s0-t9)
+
+Added `main/app_config.h`: macros only, no includes, so it is checked on the host. It holds pins, I2C addresses, periods and timeouts (ms), task priorities, stack sizes (bytes), queue depths, backoff limits, fault-recovery counts, the 10 s watchdog value and the 20 KB heap threshold. Every value comes from the overview tables.
+
+Verified on 2026-11-25 in `rtos-host-test` (`--memory 256m --cpus 1`): a throwaway file of `_Static_assert`s for every value compiled with `-std=c11 -Wall -Wextra -Werror -pedantic -fsyntax-only` (exit 0), and one deliberately wrong assert made the same compile fail (exit 1). `APP_WDT_TIMEOUT_S` matches `CONFIG_ESP_TASK_WDT_TIMEOUT_S` in `sdkconfig.defaults` (checked by grep). `main.c` does not include the header yet, so the firmware build was not re-run.
+
+Left out on purpose, because the overview does not give a value: I2C clock speed (`s2-t3`), the shorter `process_task`/`monitor_task` waits (D-9), and the heap-restart count N (D-14). The sample period, publish period and BME280 address may later come from Kconfig (`s0-t10`). Stack sizes here are the starting budget. Headroom is measured on the board.
+
 ### I2C breakout notes (s0-t1)
 
 No breakout boards exist, so there is nothing to inspect. Pull-up presence, address strap and logic level are **not applicable** for now.

@@ -77,7 +77,7 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── main/                           [exists]   Firmware. Built only by the ESP-IDF toolchain. Only the files tagged [exists] are present.
 │   ├── CMakeLists.txt              [exists]   Registers `main.c` as the `main` component.
 │   ├── main.c                      [exists]   Boot banner only for now (s0-t6). Later creates queues, mutexes, event group and tasks.
-│   ├── app_config.h                [planned]  Pins, periods, priorities, queue sizes.
+│   ├── app_config.h                [exists]   Pins, periods, priorities, stack sizes, queue depths, timeouts. Macros only (s0-t9).
 │   ├── tasks/                      [planned]  sensor, process, display, comms, monitor tasks.
 │   └── drivers/                    [planned]  bme280 and ssd1306 wrappers.
 ├── components/
