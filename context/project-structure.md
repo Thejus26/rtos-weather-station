@@ -1,6 +1,6 @@
 # Project Structure
 
-Last updated: 2026-11-19. Project status: **Not started** (specification only, no source code yet).
+Last updated: 2026-11-25. Project status: **Sprint 0 in progress** (host test loop and ESP-IDF boot-banner scaffold exist; no application code yet).
 
 Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-overview.md](project-overview.md) or [code-build.md](code-build.md) but not created yet. Change a tag to `[exists]` when the file is added.
 
@@ -16,6 +16,16 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── .venv/                          [exists]  Python 3.10 environment for the optional graphify tool only. Not tracked.
 ├── requirements-dev.txt            [exists]  Pins graphifyy==0.9.110 (dev tooling, see code-build.md section 9).
 ├── .gitignore                      [exists]  See the target structure below for what it ignores.
+├── .dockerignore                   [exists]  Keeps build outputs and local tooling out of the Docker build context.
+├── Dockerfile.test                 [exists]  Lightweight host build/test image (Alpine + GCC).
+├── Makefile                        [exists]  `make test` (host), `make docker-test` (in container), `make clean`.
+├── CMakeLists.txt                  [exists]  ESP-IDF project entry point (project name `weather_station`).
+├── main/                           [exists]  Firmware, built only by the ESP-IDF toolchain.
+│   ├── CMakeLists.txt              [exists]  Registers `main.c` as the `main` component.
+│   └── main.c                      [exists]  Boot banner only (s0-t6). No tasks, queues or drivers yet.
+├── test/
+│   └── host/
+│       └── test_smoke.c            [exists]  TEMPORARY harness smoke test (s0-t4); deleted in s1-t18.
 ├── graphify-out/                   [exists]  Generated knowledge graph. Not tracked.
 └── context/
     ├── project-overview.md         [exists]  Full specification (requirements, hardware, architecture, Docker workflow).
@@ -56,7 +66,7 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── README.md                       [exists]
 ├── AGENTS.md                       [exists]
 ├── CLAUDE.md                       [exists]
-├── CMakeLists.txt                  [planned]  ESP-IDF project entry point.
+├── CMakeLists.txt                  [exists]   ESP-IDF project entry point (project name `weather_station`).
 ├── sdkconfig.defaults              [planned]  Defaults: FreeRTOS tick 1000 Hz, task watchdog on. No credentials.
 ├── Dockerfile.test                 [exists]   Lightweight host build/test image (Alpine + GCC).
 ├── requirements-dev.txt            [exists]
@@ -64,11 +74,12 @@ Legend: `[exists]` is in the repository now. `[planned]` is defined in [project-
 ├── .gitignore                      [exists]   Ignores build/, build-host/, managed_components/, sdkconfig, sdkconfig.old, .venv/, graphify-out/, Python caches, .claude/settings.local.json.
 ├── Makefile                        [exists]   `make test` (host), `make docker-test` (in container), `make clean`.
 ├── context/                        [exists]   See "Current state" for the file list.
-├── main/                           [planned]  Firmware. Built only by the ESP-IDF toolchain.
-│   ├── main.c                      Creates queues, mutexes, event group and tasks.
-│   ├── app_config.h                Pins, periods, priorities, queue sizes.
-│   ├── tasks/                      sensor, process, display, comms, monitor tasks.
-│   └── drivers/                    bme280 and ssd1306 wrappers.
+├── main/                           [exists]   Firmware. Built only by the ESP-IDF toolchain. Only the files tagged [exists] are present.
+│   ├── CMakeLists.txt              [exists]   Registers `main.c` as the `main` component.
+│   ├── main.c                      [exists]   Boot banner only for now (s0-t6). Later creates queues, mutexes, event group and tasks.
+│   ├── app_config.h                [planned]  Pins, periods, priorities, queue sizes.
+│   ├── tasks/                      [planned]  sensor, process, display, comms, monitor tasks.
+│   └── drivers/                    [planned]  bme280 and ssd1306 wrappers.
 ├── components/
 │   └── app_logic/                  [planned]  Pure C, no ESP-IDF or FreeRTOS includes.
 │       └── (moving_average, validate, dew_point)
